@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="css/bootstrap.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="filter" aria-label="filter results">
+            </div>
+        </div>
+    </div>
+</div>
+<button data-bind="click: setLat">click for latitude</button>
+<span data-bind="text: lat"></span>
+<div id="map"></div>
+
+<!-- holds the map -->
+<!-- callback for the google maps js -->
+<script src="js/lib/jquery.min.js"></script>
+<script src="js/maps.js"></script>
+<!--removed async defer in order to load basic maps properties without running into errors-->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9vxlBwdwNj1QKzf3jv9Abg2gDues9Vvw&callback=initMap&libraries=places"></script>
+<script src="js/lib/knockout-3.2.0.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
