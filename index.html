@@ -6,28 +6,31 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="css/style.css">
     <link href="css/bootstrap.css" rel="stylesheet">
+    <script type="text/javascript" src="js/lib/OAuth/OAuth.js"></script>
+    <script type="text/javascript" src="js/lib/OAuth/SHA1.js"></script>
 </head>
 <body>
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="filter" aria-label="filter results">
-            </div>
-        </div>
-    </div>
-</div>
-<button data-bind="click: setLat">click for latitude</button>
-<span data-bind="text: lat"></span>
+<!-- holds the map -->
 <div id="map"></div>
 
-<!-- holds the map -->
+
 <!-- callback for the google maps js -->
 <script src="js/lib/jquery.min.js"></script>
 <script src="js/maps.js"></script>
 <!--removed async defer in order to load basic maps properties without running into errors-->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9vxlBwdwNj1QKzf3jv9Abg2gDues9Vvw&callback=initMap&libraries=places"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9vxlBwdwNj1QKzf3jv9Abg2gDues9Vvw&callback=initMap&libraries=places,geometry"></script>
+
+<div class="results">
+    <input type="text" class="results-filter" placeholder="filter results" aria-label="filter results">
+    <!--<ul data-bind="foreach: $parent.nytarticles">-->
+        <!--<li data-bind="text: headline.main"></li>-->
+    <!--</ul>-->
+    <button onclick="clearMarkers">clear markers</button>
+</div>
+
+
 <script src="js/lib/knockout-3.2.0.js"></script>
 <script src="js/app.js"></script>
+
 </body>
 </html>

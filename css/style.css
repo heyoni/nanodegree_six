@@ -7,3 +7,9 @@ html, body {
     margin: 0;
     padding: 0;
 }
+
+.results {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
