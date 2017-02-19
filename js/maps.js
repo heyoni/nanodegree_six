@@ -1,6 +1,5 @@
 var map;
 
-
 function initMap() {
     defaultPos = {lat: 40.695003, lng: -73.965920};
     map = new google.maps.Map(document.getElementById('map'), {
