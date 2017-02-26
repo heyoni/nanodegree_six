@@ -18,19 +18,29 @@
 <script src="js/lib/jquery.min.js"></script>
 <script src="js/maps.js"></script>
 <!--removed async defer in order to load basic maps properties without running into errors-->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9vxlBwdwNj1QKzf3jv9Abg2gDues9Vvw&callback=initMap&libraries=places,geometry"></script>
 
 <div class="results">
-    <input type="text" class="results-filter" placeholder="filter results" aria-label="filter results">
-    <!--<ul data-bind="foreach: $parent.nytarticles">-->
-        <!--<li data-bind="text: headline.main"></li>-->
-    <!--</ul>-->
-    <button onclick="clearMarkers">clear markers</button>
+    <input type="text" data-bind="value: filter" class="results-filter" placeholder="filter results"
+           aria-label="filter results">
+    <ul data-bind="foreach: compResults">
+        <li>
+            <div class="view">
+                <label data-bind="text: $data[0].name"></label>
+                <button class="destroy" data-bind="click: $root.remove"></button>
+            </div>
+        </li>
+
+
+    </ul>
+    <!--<button onclick="clearMarkers">clear markers</button>-->
+    <button type="button" data-bind="click: populateResults">Find restaurants!</button>
 </div>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9vxlBwdwNj1QKzf3jv9Abg2gDues9Vvw&callback=initMap&libraries=geometry"></script>
 
 <script src="js/lib/knockout-3.2.0.js"></script>
 <script src="js/app.js"></script>
+
 
 </body>
 </html>

@@ -1,45 +1,161 @@
 var radius;
+var gData;
+var gYata
+var listMarker;
+var markerMarker;
 
 var YelpViewModel = function () {
     var self = this;
 
     self.lat = ko.observable(map.getCenter().lat());
     self.lng = ko.observable(map.getCenter().lat());
+    self.results = ko.observableArray([]);
+    self.filter = ko.observable();
+    self.filteredResults = ko.observableArray([]);
 
-    // queryYelp(self.lat(), self.lng());
-    // fetchToken();
-    calculateRadius();
-    searchYelp(self.lat(), self.lng());
-}
-
-setMarkers = function (yelpResults) {
-    ydata = yelpResults;
-    yelpResults.forEach(function (result) {
-        lat = result.location.coordinate.latitude;
-        lng = result.location.coordinate.longitude;
-        var marker = new google.maps.Marker({
-            position: {lat: lat, lng: lng},
-            map: map
+    self.compResults = ko.computed(function () {
+        self.filteredResults.removeAll();
+        // iterates through our results array
+        self.results().find(function(result) {
+            // performs a regex on the name string with the value in the filter input box
+            var re = new RegExp(self.filter() || '' + '.*?', 'i');
+            var match = result[0].name.match(re);
+            if ( match != null) {
+                // repopulates the filteredResults with any item that matched our filter
+                self.filteredResults.push(result);
+            }
         });
-        console.log(result)
+        return(self.filteredResults());
+    });
+
+    self.populateResults = function (data) {
+        [self.message, self.parameterMap] = searchYelp();
+        // clear out all the results
+        self.results.removeAll();
+        // query Yelp with new geographical location if it applies
+        // results will be added to self.results() if successful
+        self.query(self.message, self.parameterMap);
+    };
+
+    self.remove = function (business) {
+        business[1].setMap(null);
+        self.results.remove(business);
+
+        console.log(business[0].name);
+    };
+
+    self.query = function () {
+        $.ajax({
+            'url': self.message,
+            'data': self.parameterMap,
+            'dataType': 'jsonp',
+            'cache': true,
+            'success': function (data) {
+                console.log('successfully fetched Yelp data');
+                data.businesses.forEach(function (business) {
+                    self.results.push([business, setMarker(business), setInfoWindow(business)]);
+                    modal = markerModel(business);
+                })
+            },
+            'timeout': 8000,
+            'statusCode': {
+                400: function () {
+                    console.log('error 400. query error.');
+                }
+            }
+        })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                    self.results.push([{name: 'Error loading results (' + textStatus + ')'}, 0]);
+                    console.log('error[' + errorThrown + '], status[' + textStatus + '], jqXHR[' + JSON.stringify(jqXHR) + ']');
+                }
+            );
+    }
+};
+//implement this model for map markers and decouple this logic from viewModel
+var markerModel = function (result) {
+    this.restaurant = {restaurant: result};
+    this.restaurant.infowindow = setInfoWindow(result);
+    this.restaurant.marker = setMarker(result, this.restaurant.infowindow);
+    console.log(this.restaurant);
+    return this.restaurant;
+};
+setInfoWindow = function (result) {
+    var contentStr = result.name + '<br>' + result.phone + '<br>' + 'result.rating' + '<br>' + result.review_count;
+    console.log(contentStr);
+    return new google.maps.InfoWindow({
+        content: contentStr
     })
-}
+};
+setMarker = function (result, infowindow) {
+    lat = result.location.coordinate.latitude;
+    lng = result.location.coordinate.longitude;
+    var marker = new google.maps.Marker({
+        position: {lat: lat, lng: lng},
+        map: map,
+        animation: google.maps.Animation.DROP
+    });
+    // add event listener to each marker added to map
+    marker.addListener('click', function () {
+        popupInfo(marker, infowindow);
+    });
+    return marker;
+};
+
+popupInfo = function (marker, infowindow) {
+    // set animations
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+    setTimeout(function () {
+        marker.setAnimation(null);
+    }, 2000);
+    infowindow.open(map, marker);
+    //
+    // console.log(marker);
+    // markerMarker = marker;
+    // viewModel.results().find(function (subarray) {
+    //     if (subarray.indexOf(markerMarker) == 1) {
+    //         console.log(subarray[0].name);
+    //     }
+    // })
+    console.log('marker clicked...');
+};
 calculateRadius = function () {
     var bounds = map.getBounds();
-    var boundsLeft = new google.maps.LatLng(bounds.f.f, bounds.b.f);
-    var boundsRight = new google.maps.LatLng(bounds.f.b, bounds.b.b);
-    radius = google.maps.geometry.spherical.computeDistanceBetween(boundsRight, boundsLeft) / 2;
+    // "{"south":-89.44859772059726,"west":-180,"north":89.86264605920618,"east":180}"
+    southWest = map.getBounds().getSouthWest()//.toJSON();
+    northEast = map.getBounds().getNorthEast()//.toJSON();
+    radius = google.maps.geometry.spherical.computeDistanceBetween(southWest, northEast) / 2;
+};
+fitToRadius = function (radiusLimit) {
+    // lat/lng per 1 meter
+    while (radius >= radiusLimit) {
+        calculateRadius();
+        // latMeter = Math.abs((northEast.lat() - map.getCenter().lat()) / radius);
+        // lngMeter = Math.abs((northEast.lng() - map.getCenter().lng()) / radius);
+        // northBoundary = map.getCenter().lat() + (latMeter * 39000);
+        // southBoundary = map.getCenter().lat() - (latMeter * 39000);
+        // westBoundary = map.getCenter().lng() - (lngMeter * 39000);
+        // eastBoundary = map.getCenter().lng() + (lngMeter * 39000);
+        // // this function only makes sure to contain the boundaries and may be larger than what we need
+        // map.fitBounds({south: southBoundary, west: westBoundary, north: northBoundary, east: eastBoundary});
+        map.setZoom(map.getZoom() + 1);
+    }
 }
-
 clearMarkers = function () {
 
+};
+
+function cb() {
+    // console.log("cb: " + JSON.stringify(data));
+    console.log('success');
+
 }
 
-function cb(data) {
-    console.log("cb: " + JSON.stringify(data));
-}
+function searchYelp() {
+    calculateRadius();
+    fitToRadius(40000);
+    this.latitude = map.getCenter().lat();
+    this.longitude = map.getCenter().lng();
 
-function searchYelp(latitude, longitude) {
     var auth = {
         //
         // Update with your auth tokens.
@@ -56,7 +172,6 @@ function searchYelp(latitude, longitude) {
     };
 
     var terms = 'food';
-    var near = 'Brooklyn';
 
     var accessor = {
         consumerSecret: auth.consumerSecret,
@@ -65,8 +180,7 @@ function searchYelp(latitude, longitude) {
 
     var parameters = [];
     parameters.push(['term', terms]);
-    parameters.push(['location', near]);
-    parameters.push(['cll', latitude + "," + longitude]);
+    parameters.push(['ll', this.latitude + "," + this.longitude]);
     parameters.push(['radius_filter', radius]);
     parameters.push(['callback', 'cb']);
     parameters.push(['oauth_consumer_key', auth.consumerKey]);
@@ -84,21 +198,18 @@ function searchYelp(latitude, longitude) {
     OAuth.SignatureMethod.sign(message, accessor);
 
     var parameterMap = OAuth.getParameterMap(message.parameters);
-
-    $.ajax({
-        'url': message.action,
-        'data': parameterMap,
-        'dataType': 'jsonp',
-        'cache': true,
-        'success': function (data) {
-            setMarkers(data.businesses);
-            console.log('success');
-        }
-    })
-        .fail(function (jqXHR, textStatus, errorThrown) {
-                console.log('error[' + errorThrown + '], status[' + textStatus + '], jqXHR[' + JSON.stringify(jqXHR) + ']');
-            }
-        );
+    return [message.action, parameterMap];
 }
+var viewModel = new YelpViewModel();
+ko.applyBindings(viewModel);
 
-ko.applyBindings(new YelpViewModel());
+function getMethods(obj)
+{
+    var res = [];
+    for(var m in obj) {
+        if(typeof obj[m] == "function") {
+            res.push(m)
+        }
+    }
+    return res;
+}
