@@ -3,15 +3,18 @@ var radius;
 var YelpViewModel = function () {
     var self = this;
 
+    // define our starting variables
+
     self.lat = ko.observable(map.getCenter().lat());
     self.lng = ko.observable(map.getCenter().lat());
     self.results = ko.observableArray([]);
     self.filter = ko.observable();
     self.filteredResults = ko.observableArray([]);
 
+    // this variable is used by .results-list
     self.compResults = ko.computed(function () {
+        // clear current results
         self.filteredResults.removeAll();
-        // iterates through our results array
         self.results().find(function (result) {
             // performs a regex on the name string with the value in the filter input box
             var re = new RegExp(self.filter() || '' + '.*?', 'i');
@@ -19,6 +22,9 @@ var YelpViewModel = function () {
             if (match != null) {
                 // repopulates the filteredResults with any item that matched our filter
                 self.filteredResults.push(result);
+                result.marker.setVisible(true);
+            } else {
+                result.marker.setVisible(false);
             }
         });
         return (self.filteredResults());
@@ -26,33 +32,27 @@ var YelpViewModel = function () {
 
     self.populateResults = function () {
         [self.message, self.parameterMap] = searchYelp();
-        // clear out all the results
-        // self.results.removeAll();
+        // clear out all the results, markers and infowindows
         self.removeEntry();
         // query Yelp with new geographical location if it applies
         // results will be added to self.results() if successful
         self.query(self.message, self.parameterMap);
     };
-
+    // remove an individual or all restaurants from the results list
     self.removeEntry = function (business) {
         if (business == null) {
             self.results().forEach(function (restaurant) {
-                // if you remove an object while iterating through it, the item in the position ahead will move down,
-                // but the loop will move up in the index, leaving behind half of the results unprocessed.
-                // somehow destroy() works because it hides the results rather than delete them.
-                self.results.destroy(restaurant);
-                delete restaurant.infowindow
+                delete restaurant.infowindow;
                 restaurant.marker.setMap(null);
-                // restaurant.marker.setMap(null);
-            })
+            });
+            self.results.removeAll();
         } else {
-            console.log('business is not null');
-            self.results.destroy(business);
             delete business.infowindow;
             business.marker.setMap(null);
+            self.results.remove(business);
         }
     };
-
+    // query function used by self.populateResults()
     self.query = function () {
         $.ajax({
             'url': self.message,
@@ -62,20 +62,18 @@ var YelpViewModel = function () {
             'success': function (data) {
                 console.log('successfully fetched Yelp data');
                 data.businesses.forEach(function (business) {
-                    // console.log(markerModel(business));
                     self.results.push(markerModel(business));
                 })
             },
             'error': function (jqXHR, textStatus, errorThrown) {
                 self.results.push(markerModel(textStatus));
-                // self.results.push([{name: 'Error loading results (' + textStatus + ')'}, 0]);
                 console.log('error[' + errorThrown + '], status[' + textStatus + '], jqXHR[' + JSON.stringify(jqXHR) + ']');
             },
             'timeout': 8000,
         })
     }
 };
-// implement this model for map markers and decouple this logic from viewModel
+// Model for individual markers, containing map marker, restaurant info and infowindow
 var markerModel = function (result) {
     // console.log(typeof(result) == 'object');
     // check if result is a restaurant object, else assume it's an error code
@@ -89,12 +87,14 @@ var markerModel = function (result) {
     }
     return this.restaurant;
 };
+// creating the google.maps.infoWindow for markerModel
 setInfoWindow = function (result) {
-    var contentStr = result.name + '<br>' + result.phone + '<br>' + 'result.rating' + '<br>' + result.review_count;
+    var contentStr = result.name + '<br>' + result.phone + '<br>' + 'result.rating' + '<br>' + result.review_count + '<br>' + '<a href="' + result.url + '">more info</a>';
     return new google.maps.InfoWindow({
         content: contentStr
     })
 };
+// creating the google.maps.Marker object for markerModel
 setMarker = function (result, infowindow) {
     lat = result.location.coordinate.latitude;
     lng = result.location.coordinate.longitude;
@@ -109,7 +109,11 @@ setMarker = function (result, infowindow) {
     });
     return marker;
 };
-
+// activates the popup window when user clicks on a list item
+popupInfoFromList = function (business) {
+    popupInfo(business.marker, business.infowindow);
+}
+// Handler for clicking on map marker
 popupInfo = function (marker, infowindow) {
     // set animations
     marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -118,17 +122,20 @@ popupInfo = function (marker, infowindow) {
     }, 2000);
     // close any opened infowindow
     viewModel.results().forEach(function (restaurant) {
-        restaurant.infowindow.close();
-    })
+        if (restaurant.infowindow.close) {
+            console.log(restaurant.infowindow.close);
+            restaurant.infowindow.close();
+        }
+    });
     infowindow.open(map, marker);
 };
+// make sure we search all restaurants contained in our radius
 calculateRadius = function () {
-    var bounds = map.getBounds();
-    // "{"south":-89.44859772059726,"west":-180,"north":89.86264605920618,"east":180}"
-    southWest = map.getBounds().getSouthWest()//.toJSON();
-    northEast = map.getBounds().getNorthEast()//.toJSON();
+    southWest = map.getBounds().getSouthWest();
+    northEast = map.getBounds().getNorthEast();
     radius = google.maps.geometry.spherical.computeDistanceBetween(southWest, northEast) / 2;
 };
+// Yelp has a radius max of 40000 meters, zoom in if we're trying to cover an area that's too large
 fitToRadius = function (radiusLimit) {
     // zoom in until we're within our prescribed radius
     while (radius >= radiusLimit) {
@@ -136,37 +143,19 @@ fitToRadius = function (radiusLimit) {
         map.setZoom(map.getZoom() + 1);
     }
 };
-
-// instructions for hiding the results sidebar
+// hide the results list
 var sideBar = {
-    hidden: 0,
-    offset: 0,
-    // move the sidebar off the screen just enough so that the chevron stays visible
-    toggleSidebar : function () {
-        if (this.hidden == 0) {
-            $('div.results').css('right', -this.offset);
-            $('a.results-hide').html('<i class="fa fa-chevron-left fa-lg" aria-hidden="true">');
-            this.hidden = 1;
-        } else {
-            this.hidden = 0;
-            $('div.results').css('right', 0);
-            $('a.results-hide').html('<i class="fa fa-chevron-right fa-lg" aria-hidden="true">');
-        }
-    },
-    setOffset: function () {
-        console.log('running sidebardotoffset');
-        this.offset = ($('div.results').outerWidth(true) - $('div.results div.results-list').outerWidth(true)) / 2 + $('div.results div.results-list').outerWidth(true);
+    toggleSidebar: function () {
+        $('div.results').toggle('close');
     }
-};
-// add listener that will update offset each time results window changes
-$(".results").on("DOMSubtreeModified", function () {
-    sideBar.setOffset();
-});
+}
 function cb() {
     console.log('success');
 
 };
-
+// search Yelp for all restaurants within the radius of the map
+// code adapted from user mighty_marks (github)
+// https://github.com/levbrie/mighty_marks/blob/master/yelp-search-sample.html
 function searchYelp() {
     calculateRadius();
     fitToRadius(40000);
@@ -219,13 +208,3 @@ function searchYelp() {
 };
 var viewModel = new YelpViewModel();
 ko.applyBindings(viewModel);
-
-function getMethods(obj) {
-    var res = [];
-    for (var m in obj) {
-        if (typeof obj[m] == "function") {
-            res.push(m)
-        }
-    }
-    return res;
-};

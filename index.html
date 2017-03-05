@@ -19,23 +19,27 @@
 <script src="js/lib/jquery.min.js"></script>
 <script src="js/maps.js"></script>
 <!--removed async defer in order to load basic maps properties without running into errors-->
-
+<a class="results-hide" onclick="sideBar.toggleSidebar()"><i class="fa fa-minus fa-2x" aria-hidden="true"></i></a>
 <div class="results">
-    <a class="results-hide" onclick="sideBar.toggleSidebar()"><i class="fa fa-chevron-right fa-lg" aria-hidden="true"></i></a>
     <div class="results-list">
-    <input type="text" data-bind="value: filter, valueUpdate: 'afterkeydown'" class="results-filter" placeholder="filter results"
-           aria-label="filter results">
-    <ul data-bind="foreach: compResults">
-        <li>
-            <div class="view">
-                <label data-bind="text: $data.restaurant.name"></label>
-                <i class="fa fa-minus-square-o" aria-hidden="true" data-bind="click: $root.removeEntry"></i>
-            </div>
-        </li>
-    </ul>
+        <!-- value is updated as soon as text is entered w/ valueUpdate -->
+        <input type="text" data-bind="value: filter, valueUpdate: 'afterkeydown'" class="results-filter"
+               placeholder="filter results"
+               aria-label="filter results">
+        <ul data-bind="foreach: compResults">
+            <li class="restaurant">
+                <div class="view">
+                    <label data-bind="text: $data.restaurant.name, click: popupInfoFromList"></label>
+                    <i class="fa fa-minus-square-o" aria-hidden="true" data-bind="click: $root.removeEntry"></i>
+                </div>
+            </li>
+        </ul>
     </div>
-    <!--<button onclick="clearMarkers">clear markers</button>-->
-    <button type="button" data-bind="click: populateResults">Find restaurants!</button>
+    <div class="find-restaurant-btn">
+        <a class="btn btn-default btn-sm" href="#" data-bind="click: populateResults">
+            Find Restaurants</a>
+    </div>
+
 </div>
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9vxlBwdwNj1QKzf3jv9Abg2gDues9Vvw&callback=initMap&libraries=geometry"></script>

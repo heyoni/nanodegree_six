@@ -15,17 +15,39 @@ html, body {
     margin: 15px;
     padding: 8px;
     height: 100%;
-    /*overflow: hidden;*/
-}
-.results-hide {
-    position: relative;
-    right: 20px;
-    overflow: visible;
-}
-.results-list {
-    background: rgba(165, 149, 169, 0.65);
     overflow: hidden;
 }
+
+.results.close {
+    -webkit-transform: translate(-300px, 0);
+    transform: translate(0px, -900px);
+    transition: transform 0.3s ease;
+}
+
+.results-hide {
+    position: absolute;
+    right: 280px;
+    top: 0px;
+}
+
+.results-list {
+    background: rgba(165, 149, 169, 0.65);
+}
+
+ul {
+    width: 100%;
+    margin: 7px;
+    padding: 0;
+}
+
+li.restaurant {
+    /*list-style-position: inside;*/
+    text-align: left;
+    /*white-space: nowrap;*/
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 @media screen and (min-height: 575px) {
     div.results {
         height: 575px;
@@ -33,8 +55,9 @@ html, body {
         padding: 0px;
     }
 }
+
 @media screen and (max-width: 600px) {
     div.results {
-        width: 45%;
+        width: 30%;
     }
 }
