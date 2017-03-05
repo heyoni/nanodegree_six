@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="css/style.css">
     <link href="css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/font-awesome.min.css">
     <script type="text/javascript" src="js/lib/OAuth/OAuth.js"></script>
     <script type="text/javascript" src="js/lib/OAuth/SHA1.js"></script>
 </head>
@@ -20,18 +21,19 @@
 <!--removed async defer in order to load basic maps properties without running into errors-->
 
 <div class="results">
-    <input type="text" data-bind="value: filter" class="results-filter" placeholder="filter results"
+    <a class="results-hide" onclick="sideBar.toggleSidebar()"><i class="fa fa-chevron-right fa-lg" aria-hidden="true"></i></a>
+    <div class="results-list">
+    <input type="text" data-bind="value: filter, valueUpdate: 'afterkeydown'" class="results-filter" placeholder="filter results"
            aria-label="filter results">
     <ul data-bind="foreach: compResults">
         <li>
             <div class="view">
-                <label data-bind="text: $data[0].name"></label>
-                <button class="destroy" data-bind="click: $root.remove"></button>
+                <label data-bind="text: $data.restaurant.name"></label>
+                <i class="fa fa-minus-square-o" aria-hidden="true" data-bind="click: $root.removeEntry"></i>
             </div>
         </li>
-
-
     </ul>
+    </div>
     <!--<button onclick="clearMarkers">clear markers</button>-->
     <button type="button" data-bind="click: populateResults">Find restaurants!</button>
 </div>

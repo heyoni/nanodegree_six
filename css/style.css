@@ -12,30 +12,27 @@ html, body {
     position: absolute;
     top: 0px;
     right: 0px;
-    background: aliceblue;
+    margin: 15px;
+    padding: 8px;
+    height: 100%;
+    /*overflow: hidden;*/
 }
-li .destroy {
-    display: none;
+.results-hide {
     position: relative;
-    top: 0;
-    right: 10px;
-    bottom: 0;
-    width: 40px;
-    height: 40px;
-    margin: auto 0;
-    font-size: 30px;
-    color: #cc9a9a;
-    margin-bottom: 11px;
-    transition: color 0.2s ease-out;
+    right: 20px;
+    overflow: visible;
 }
-.destroy:hover {
-    color: #af5b5e;
+.results-list {
+    background: rgba(165, 149, 169, 0.65);
+    overflow: hidden;
 }
-
-.destroy:after {
-    content: '×';
+@media screen and (min-height: 575px) {
+    div.results {
+        height: 575px;
+    }
 }
-
-li:hover .destroy {
-    display: block;
+@media screen and (max-width: 600px) {
+    div.results {
+        width: 35%;
+    }
 }
