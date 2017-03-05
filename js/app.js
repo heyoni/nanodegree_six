@@ -137,9 +137,11 @@ fitToRadius = function (radiusLimit) {
     }
 };
 
+// instructions for hiding the results sidebar
 var sideBar = {
     hidden: 0,
     offset: 0,
+    // move the sidebar off the screen just enough so that the chevron stays visible
     toggleSidebar : function () {
         if (this.hidden == 0) {
             $('div.results').css('right', -this.offset);
@@ -156,12 +158,11 @@ var sideBar = {
         this.offset = ($('div.results').outerWidth(true) - $('div.results div.results-list').outerWidth(true)) / 2 + $('div.results div.results-list').outerWidth(true);
     }
 };
+// add listener that will update offset each time results window changes
 $(".results").on("DOMSubtreeModified", function () {
     sideBar.setOffset();
 });
-// $(".results").on("DOMSubtreeModified.sideBar", sideBar.setOffset);
 function cb() {
-    // console.log("cb: " + JSON.stringify(data));
     console.log('success');
 
 };

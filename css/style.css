@@ -33,6 +33,6 @@ html, body {
 }
 @media screen and (max-width: 600px) {
     div.results {
-        width: 35%;
+        width: 45%;
     }
 }
