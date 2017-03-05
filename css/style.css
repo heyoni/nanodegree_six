@@ -29,6 +29,8 @@ html, body {
 @media screen and (min-height: 575px) {
     div.results {
         height: 575px;
+        margin: 0px;
+        padding: 0px;
     }
 }
 @media screen and (max-width: 600px) {
