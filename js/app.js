@@ -15,7 +15,7 @@ var YelpViewModel = function () {
             // performs a regex on the name string with the value in the filter input box
             var re = new RegExp(self.filter() || '' + '.*?', 'i');
             var match = result.restaurant.name.match(re);
-            if (match != null) {
+            if (match !== null) {
                 // repopulates the filteredResults with any item that matched our filter
                 self.filteredResults.push(result);
                 result.marker.setVisible(true);
@@ -36,7 +36,7 @@ var YelpViewModel = function () {
     };
     // remove an individual or all restaurants from the results list
     self.removeEntry = function (business) {
-        if (business == null) {
+        if (business === null) {
             self.results().forEach(function (restaurant) {
                 delete restaurant.infowindow;
                 restaurant.marker.setMap(null);
@@ -59,15 +59,15 @@ var YelpViewModel = function () {
                 console.log('successfully fetched Yelp data');
                 data.businesses.forEach(function (business) {
                     self.results.push(markerModel(business));
-                })
+                });
             },
             'error': function (jqXHR, textStatus, errorThrown) {
                 self.results.push(markerModel(textStatus));
                 console.log('error[' + errorThrown + '], status[' + textStatus + '], jqXHR[' + JSON.stringify(jqXHR) + ']');
             },
             'timeout': 8000
-        })
-    }
+        });
+    };
 };
 // Model for individual markers, containing map marker, restaurant info and infowindow
 var markerModel = function (result) {
@@ -84,7 +84,7 @@ var markerModel = function (result) {
             map: map,
             animation: google.maps.Animation.DROP
         });
-        return this.restaurant
+        return this.restaurant;
     }
     return this.restaurant;
 };
@@ -93,7 +93,7 @@ setInfoWindow = function (result) {
     var contentStr = result.name + '<br>' + result.phone + '<br>' + result.rating + '<br>' + result.review_count + '<br>' + '<a href="' + result.url + '">more info</a>';
     return new google.maps.InfoWindow({
         content: contentStr
-    })
+    });
 };
 // creating the google.maps.Marker object for markerModel
 setMarker = function (result, infowindow) {
