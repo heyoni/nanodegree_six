@@ -5,8 +5,8 @@ var YelpViewModel = function () {
 
     // define our starting variables
 
-    self.lat = ko.observable(map.getCenter().lat());
-    self.lng = ko.observable(map.getCenter().lat());
+    // self.lat = ko.observable(map.getCenter().lat());
+    // self.lng = ko.observable(map.getCenter().lat());
     self.results = ko.observableArray([]);
     self.filter = ko.observable();
     self.filteredResults = ko.observableArray([]);
@@ -89,7 +89,7 @@ var markerModel = function (result) {
 };
 // creating the google.maps.infoWindow for markerModel
 setInfoWindow = function (result) {
-    var contentStr = result.name + '<br>' + result.phone + '<br>' + 'result.rating' + '<br>' + result.review_count + '<br>' + '<a href="' + result.url + '">more info</a>';
+    var contentStr = result.name + '<br>' + result.phone + '<br>' + result.rating + '<br>' + result.review_count + '<br>' + '<a href="' + result.url + '">more info</a>';
     return new google.maps.InfoWindow({
         content: contentStr
     })
@@ -112,7 +112,7 @@ setMarker = function (result, infowindow) {
 // activates the popup window when user clicks on a list item
 popupInfoFromList = function (business) {
     popupInfo(business.marker, business.infowindow);
-}
+};
 // Handler for clicking on map marker
 popupInfo = function (marker, infowindow) {
     // set animations
