@@ -13,13 +13,13 @@
 <body>
 <!-- holds the map -->
 <!--<img src="img/Yelp_burst_positive_RGB.png">-->
-<div id="map"></div>
+<div class="map" id="map"></div>
 <!--removed async defer in order to load basic maps properties without running into errors-->
 <a style="display: none" class="results-hide" onclick="sideBar.toggleSidebar()"><i class="fa fa-minus fa-2x" aria-hidden="true"></i></a>
 <div class="results" style="display: none">
     <div class="results-list">
         <!-- value is updated as soon as text is entered w/ valueUpdate -->
-        <input type="text" data-bind="value: filter, valueUpdate: 'afterkeydown'" class="results-filter"
+        <input type="text" data-bind="textInput: filter" class="results-filter"
                placeholder="filter results"
                aria-label="filter results">
         <ul data-bind="foreach: compResults">
