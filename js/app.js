@@ -3,10 +3,6 @@ var radius;
 var YelpViewModel = function () {
     var self = this;
 
-    // define our starting variables
-
-    // self.lat = ko.observable(map.getCenter().lat());
-    // self.lng = ko.observable(map.getCenter().lat());
     self.results = ko.observableArray([]);
     self.filter = ko.observable();
     self.filteredResults = ko.observableArray([]);
@@ -69,7 +65,7 @@ var YelpViewModel = function () {
                 self.results.push(markerModel(textStatus));
                 console.log('error[' + errorThrown + '], status[' + textStatus + '], jqXHR[' + JSON.stringify(jqXHR) + ']');
             },
-            'timeout': 8000,
+            'timeout': 8000
         })
     }
 };
@@ -83,6 +79,11 @@ var markerModel = function (result) {
         this.restaurant.marker = setMarker(result, this.restaurant.infowindow);
     } else {
         this.restaurant = {restaurant: {name: 'error: ' + result}};
+        this.restaurant.marker = new google.maps.Marker({
+            position: {lat: map.getCenter().lat(), lng: map.getCenter().lng()},
+            map: map,
+            animation: google.maps.Animation.DROP
+        });
         return this.restaurant
     }
     return this.restaurant;
@@ -148,11 +149,11 @@ var sideBar = {
     toggleSidebar: function () {
         $('div.results').toggle('close');
     }
-}
+};
 function cb() {
     console.log('success');
 
-};
+}
 // search Yelp for all restaurants within the radius of the map
 // code adapted from user mighty_marks (github)
 // https://github.com/levbrie/mighty_marks/blob/master/yelp-search-sample.html
@@ -205,6 +206,4 @@ function searchYelp() {
 
     var parameterMap = OAuth.getParameterMap(message.parameters);
     return [message.action, parameterMap];
-};
-var viewModel = new YelpViewModel();
-ko.applyBindings(viewModel);
+}
