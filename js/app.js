@@ -15,11 +15,12 @@ var YelpViewModel = function () {
             // performs a regex on the name string with the value in the filter input box
             var re = new RegExp(self.filter() || '' + '.*?', 'i');
             var match = result.restaurant.name.match(re);
-            if (match !== null) {
+            if (match != null) {
                 // repopulates the filteredResults with any item that matched our filter
                 self.filteredResults.push(result);
                 result.marker.setVisible(true);
             } else {
+                result.infowindow.close();
                 result.marker.setVisible(false);
             }
         });
@@ -36,7 +37,7 @@ var YelpViewModel = function () {
     };
     // remove an individual or all restaurants from the results list
     self.removeEntry = function (business) {
-        if (business === null) {
+        if (business == null) {
             self.results().forEach(function (restaurant) {
                 delete restaurant.infowindow;
                 restaurant.marker.setMap(null);
